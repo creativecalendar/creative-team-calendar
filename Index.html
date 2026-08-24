@@ -400,34 +400,17 @@
   These are fake events. Later, this array will be replaced by Outlook/Microsoft
   calendar data. The visual design will not need to change.
 */
-const events = [
-  {
-    id: "meet-001",
-    title:"Staff Meeting",
-    startDate:"2026-08-17",
-    endDate:"2026-08-17",
-    time:"9:00 AM",
-    type:"meeting"
-  },
+let events = [];
 
-  {
-    id: "brn-001",
-    title:"Creative Brainstorm",
-    startDate:"2026-08-18",
-    endDate:"2026-08-18",
-    time:"10:00 AM",
-    type:"brainstorm"
-  },
-
-  {
-    id: "vac-001",
-    title:"Becca Vacation",
-    startDate:"2026-08-25",
-    endDate:"2026-08-29",
-    allDay:true,
-    type:"leave"
+async function loadEvents() {
+  try {
+    const response = await fetch("events.json");
+    events = await response.json();
+    render();
+  } catch (error) {
+    console.error("Error loading events:", error);
   }
-];
+}
 
 const typeNames = {
   meeting:"Meeting",
@@ -435,6 +418,7 @@ const typeNames = {
   special:"Special Event",
   crosspoint:"Crosspoint Event",
   deadline:"Deadline"
+  leave:"Leave"
 };
 
 function mapCategory(category) {
@@ -608,7 +592,7 @@ const future = events.filter(e =>
   e.startDate > todayKey
 );
 }
-render();
+loadEvents();
 setInterval(render, 60000);
 </script>
 </body>
