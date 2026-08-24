@@ -1,1 +1,10 @@
-{"id":"AAMkADA3NjA3NDg4LTg3MDAtNGEyYi1hMmY1LTA1ZjMwMzgzZDMzYgFRAAgI4BuNHleAAEYAAAAAjrGxv_zGH0qXfymRsyA6xgcAzAFW5THK9ECoq2yxv0HY-AAHsHgoLAAAzAFW5THK9ECoq2yxv0HY-AAHsHpyWQAAEA==","title":"Online Recording","startDate":"2027-08-18","endDate":"2027-08-18","time":"2:30 PM
+[
+  {
+    "id": "test1",
+    "title": "Test Event",
+    "startDate": "2026-09-10",
+    "endDate": "2026-09-10",
+    "time": "2:30 PM",
+    "type": "meeting"
+  }
+]
