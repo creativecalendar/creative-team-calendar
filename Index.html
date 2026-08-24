@@ -417,7 +417,7 @@ const typeNames = {
   brainstorm:"Brainstorm",
   special:"Special Event",
   crosspoint:"Crosspoint Event",
-  deadline:"Deadline"
+  deadline:"Deadline",
   leave:"Leave"
 };
 
@@ -579,18 +579,25 @@ function render(){
     });
   }
 
-  const upcoming=document.getElementById("upcoming");
-  upcoming.innerHTML="";
-  const maxDate = new Date(
-  now.getFullYear(),
-  now.getMonth() + 3,
-  0
-);
+  const upcoming = document.getElementById("upcoming");
+upcoming.innerHTML = "";
 
-const future = events.filter(e =>
-  new Date(e.startDate) <= maxDate &&
-  e.startDate > todayKey
-);
+const future = events
+  .filter(e => e.endDate >= todayKey)
+  .sort((a, b) => a.startDate.localeCompare(b.startDate))
+  .slice(0, 8);
+
+future.forEach(e => {
+  const item = document.createElement("div");
+  item.className = "upcoming-item";
+
+  item.innerHTML = `
+    <span class="upcoming-date">${e.startDate}</span>
+    <span>${e.title}</span>
+  `;
+
+  upcoming.appendChild(item);
+});
 }
 loadEvents();
 setInterval(render, 60000);
