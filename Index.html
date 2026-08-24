@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Prevents search engines like Google from indexing this page -->
+    <meta name="robots" content="noindex, nofollow">
+<title>Crosspoint Creative — Office Calendar v2</title>
+<style>
+  :root{
+    --blue:#0078AE;
+    --black:#000000;
+    --green:#00B259;
+    --charcoal:#35363A;
+    --white:#FFFFFF;
+    --grid:#B8BDC1;
+    --sand:#F7F5EF;
+    --navy:#0A3D52;
+    --gold:#F2A93B;
+    --coral:#EA6E5A;
+    --light-teal:#BCE6E3;
+    --teal:#00B8B8; /* temporary; replace with corrected brand teal */
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;width:100%;height:100%;background:var(--white)}
+  body{
+    font-family: Lato, sans-serif;
+    color:var(--black);
+    overflow:hidden;
+  }
+
+  .screen{
+    width:100vw;
+    height:100vh;
+    min-height:900px;
+    display:flex;
+    flex-direction:column;
+    background:var(--white);
+  }
+
+  /* HEADER */
+  .header{
+    flex:0 0 8.5%;
+    min-height:86px;
+    background:var(--black);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  .brand{
+    width:min(76%, 980px);
+    height:78%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    z-index:2;
+    margin: 0 auto;
+  }
+  .brand-logo{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    object-position:center;
+  }
+
+
+  /* MAIN */
+  .months{
+    flex:1 1 auto;
+    min-height:0;
+    padding:1.2vh 3.2vw .6vh;
+    display:flex;
+    flex-direction:column;
+    gap:1.1vh;
+  }
+
+  .month{
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+  }
+  .month.current{flex:1.45 1 0}
+  .month.future{flex:1 1 0}
+
+  .month-title{
+    color:var(--blue);
+    font-family: Arvo, serif;
+    font-weight:400;
+    font-size:clamp(1.6rem,3.15vw,4rem);
+    line-height:1;
+    letter-spacing:-.025em;
+    margin:0 0 .55vh;
+  }
+  .month.future .month-title{
+    font-size:clamp(1.35rem,2.55vw,3.1rem);
+  }
+
+  .weekday-row,.calendar-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+  }
+  .weekday-row{
+    background:var(--blue);
+    color:white;
+    min-height:2.7vh;
+    align-items:center;
+    border-left:1px solid var(--blue);
+    border-right:1px solid var(--blue);
+  }
+  .weekday{
+    text-align:center;
+    font-size:clamp(.55rem,1.05vw,1.2rem);
+    font-weight:700;
+    letter-spacing:.08em;
+  }
+
+  .calendar-grid{
+    flex:1 1 auto;
+    min-height:0;
+    border-left:1px solid var(--grid);
+    border-top:1px solid var(--grid);
+  }
+  .day{
+    min-width:0;
+    min-height:0;
+    position:relative;
+    padding:.45vh .35vw;
+    border-right:1px solid var(--grid);
+    border-bottom:1px solid var(--grid);
+    overflow:hidden;
+    background:white;
+  }
+  .day.other-month{
+    background:#fafafa;
+    color:#B8BDC1;
+  }
+  .day.today{
+    background:var(--sand);
+    box-shadow:inset 0 0 0 4px var(--blue);
+  }
+  .day-number{
+    font-size:clamp(.8rem,1.45vw,1.8rem);
+    font-weight:700;
+    line-height:1;
+    margin-bottom:.35vh;
+  }
+  .today-label{
+    color:var(--blue);
+    font-size:clamp(.42rem,.65vw,.8rem);
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    margin-top:.2vh;
+  }
+
+  .event{
+    border-left:5px solid var(--blue);
+    padding:.25vh .3vw;
+    margin:.22vh 0;
+    font-size:clamp(.45rem,.78vw,.95rem);
+    line-height:1.1;
+    background:#F5F7F8;
+    white-space:nowrap;
+    overflow:hidden;
+    overflow-wrap: break-word;
+  }
+
+.event.leave {
+  background:#edf9ef;
+  font-weight:700;
+}
+
+  .event .time{font-weight:700}
+  .event.meeting{border-color:var(--blue)}
+  .event.brainstorm{border-color:var(--teal)}
+  .event.special{border-color:var(--light-teal)}
+  .event.crosspoint{border-color:var(--gold)}
+  .event.deadline{border-color:var(--coral)}
+  .event.leave{border-color:var(--green)}
+  .more{
+    color:var(--blue);
+    font-size:clamp(.42rem,.68vw,.8rem);
+    font-weight:700;
+    margin-top:.2vh;
+  }
+
+  /* FOOTER */
+  .footer{
+    flex:0 0 13.5%;
+    min-height:130px;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    border-top:1px solid var(--grid);
+  }
+  .footer-section{
+    padding:1.1vh 1.7vw;
+    min-width:0;
+    border-right:1px solid var(--grid);
+  }
+  .footer-section:last-child{border-right:0}
+  .footer-section.dark{
+    background:var(--black);
+    color:white;
+  }
+  .footer-title{
+    color:var(--blue);
+    font-family: Arvo, serif;
+    font-size:clamp(1rem,1.8vw,2.1rem);
+    line-height:1;
+    margin-bottom:.65vh;
+    text-transform:uppercase;
+    letter-spacing:.01em;
+  }
+  .dark .footer-title{color:var(--blue)}
+  .today-date{
+    color:#ddd;
+    font-size:clamp(.65rem,1.1vw,1.25rem);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .today-events{
+    margin-top:.7vh;
+    display:grid;
+    gap:.35vh;
+  }
+  .today-event{
+    font-size:clamp(.58rem,.9vw,1rem);
+    line-height:1.15;
+  }
+  .today-event strong{color:white}
+  .upcoming-list{
+    display:grid;
+    gap:.35vh;
+    max-height:80%;
+    overflow:hidden;
+  }
+  .upcoming-item{
+    display:flex;
+    gap:.65vw;
+    font-size:clamp(.55rem,.9vw,1rem);
+    line-height:1.1;
+  }
+  .upcoming-date{
+    color:var(--blue);
+    font-weight:800;
+    min-width:3.7em;
+  }
+  .legend{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.6vh .8vw;
+  }
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap:.45vw;
+    font-size:clamp(.5rem,.85vw,.95rem);
+  }
+  .dot{
+    width:clamp(9px,.75vw,16px);
+    height:clamp(9px,.75vw,16px);
+    border-radius:50%;
+    flex:none;
+  }
+  .dot.meeting{background:var(--blue)}
+  .dot.brainstorm{background:var(--teal)}
+  .dot.special{background:var(--light-teal)}
+  .dot.crosspoint{background:var(--gold)}
+  .dot.deadline{background:var(--coral)}
+  .dot.leave{background:var(--green)}
+  }
+
+  .brand-logo{
+    display:block;
+    width:min(52vw, 560px);
+    max-height:75%;
+    height:auto;
+    object-fit:contain;
+  }
+
+  /* Wide/landscape screens: use a 3-column dashboard. */
+@media (orientation: landscape) and (min-width: 700px){
+  body{overflow:auto}
+  .screen{height:auto;min-height:100vh}
+  .header{flex:0 0 13vh;min-height:76px}
+  
+  /* Restrict the brand box width on landscape displays to maintain a centered aspect ratio */
+  .brand {
+    width: min(52vw, 560px);
+    height: 75%;
+  }
+
+  .months{
+    padding:2vh 2.2vw 1.2vh;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:1.5vw;
+    align-items:stretch;
+  }
+  .month.current,.month.future{flex:initial;min-height:520px}
+  .month-title,.month.future .month-title{
+    font-size:clamp(1.35rem,2.4vw,2.7rem);
+  }
+  .weekday-row{min-height:34px}
+  .weekday{font-size:clamp(.5rem,.8vw,.85rem)}
+  .calendar-grid{min-height:420px}
+  .day{padding:6px 5px}
+  .day-number{font-size:clamp(.8rem,1.3vw,1.35rem)}
+  .today-label{font-size:clamp(.4rem,.55vw,.65rem)}
+  .event{font-size:clamp(.42rem,.68vw,.78rem);border-left-width:4px}
+  .footer{
+    flex:initial;
+    min-height:150px;
+    grid-template-columns:1fr 1fr 1fr;
+  }
+  .footer-title{font-size:clamp(1rem,1.6vw,1.6rem)}
+  .today-date,.today-event,.upcoming-item,.legend-item{font-size:clamp(.55rem,.8vw,.85rem)}
+}
+
+  /* Portrait screens: optimized for the 65" TV, while still scaling down cleanly. */
+@media (orientation: portrait){
+  .brand {
+    width: min(58vw, 620px);
+    height: 72%;
+  }
+  .months{overflow:hidden}
+  }
+
+  /* Small landscape laptops: keep all three months usable without huge vertical scrolling. */
+  @media (orientation: landscape) and (min-width:700px) and (max-height:800px){
+    .header{flex-basis:16vh}
+    .months{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      padding-top:2vh;
+    }
+    .month.current,.month.future{min-height:0}
+    .calendar-grid{min-height:calc(100vh - 360px)}
+    .footer{min-height:135px}
+    .event{font-size:clamp(.38rem,.62vw,.7rem)}
+  }
+
+  /* Narrow/tall screens: keep the stacked design readable. */
+  @media (orientation: portrait) and (max-width:700px){
+    body{overflow:auto}
+    .screen{height:auto;min-height:100vh}
+    .header{min-height:90px}
+    .months{overflow:visible}
+    .month.current,.month.future{min-height:420px}
+    .footer{grid-template-columns:1fr;min-height:auto}
+    .footer-section{min-height:150px;border-right:0;border-bottom:1px solid var(--grid)}
+  }
+
+</style>
+</head>
+<body>
+<div class="screen">
+  <header class="header">
+    <div class="brand"><img class="brand-logo" src="https://i.postimg.cc/hvNxvCVH/Crosspoint-Creative.png" alt="Crosspoint Creative"></div><div class="blue-rule"></div>
+  </header>
+
+ <main class="months" id="months"></main>
+
+  <footer class="footer">
+    <section class="footer-section dark">
+      <div class="footer-title">Today</div>
+      <div class="today-date" id="todayDate"></div>
+      <div class="today-events" id="todayEvents"></div>
+    </section>
+
+    <section class="footer-section">
+      <div class="footer-title">Upcoming Events</div>
+      <div class="upcoming-list" id="upcoming"></div>
+    </section>
+
+    <section class="footer-section">
+      <div class="footer-title">Event Categories</div>
+      <div class="legend">
+        <div class="legend-item"><span class="dot meeting"></span>Meeting</div>
+        <div class="legend-item"><span class="dot brainstorm"></span>Brainstorm</div>
+        <div class="legend-item"><span class="dot special"></span>Special Event</div>
+        <div class="legend-item"><span class="dot crosspoint"></span>Crosspoint Event</div>
+        <div class="legend-item"><span class="dot deadline"></span>Deadline</div>
+        <div class="legend-item"><span class="dot leave"></span>Leave</div>
+      </div>
+    </section>
+  </footer>
+</div>
+
+<script>
+/*
+  VERSION 2:
+  The layout is responsive: portrait screens use the TV-style stacked layout;
+  landscape screens use a three-column meeting/laptop layout.
+
+  VERSION 1:
+  These are fake events. Later, this array will be replaced by Outlook/Microsoft
+  calendar data. The visual design will not need to change.
+*/
+const events = [
+  {
+    id: "meet-001",
+    title:"Staff Meeting",
+    startDate:"2026-08-17",
+    endDate:"2026-08-17",
+    time:"9:00 AM",
+    type:"meeting"
+  },
+
+  {
+    id: "brn-001",
+    title:"Creative Brainstorm",
+    startDate:"2026-08-18",
+    endDate:"2026-08-18",
+    time:"10:00 AM",
+    type:"brainstorm"
+  },
+
+  {
+    id: "vac-001",
+    title:"Becca Vacation",
+    startDate:"2026-08-25",
+    endDate:"2026-08-29",
+    allDay:true,
+    type:"leave"
+  }
+];
+
+const typeNames = {
+  meeting:"Meeting",
+  brainstorm:"Brainstorm",
+  special:"Special Event",
+  crosspoint:"Crosspoint Event",
+  deadline:"Deadline"
+};
+
+function mapCategory(category) {
+  switch(category) {
+    case "Meeting":
+      return "meeting";
+
+    case "Brainstorm":
+      return "brainstorm";
+
+    case "Special Event":
+      return "special";
+
+    case "Crosspoint Event":
+      return "crosspoint";
+
+    case "Deadline":
+      return "deadline";
+
+    case "Leave":
+      return "leave";
+
+    default:
+      return "meeting";
+  }
+}
+
+function pad(n){return String(n).padStart(2,"0")}
+function iso(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+
+function eventOccursOnDate(event, dateKey) {
+  return (
+    dateKey >= event.startDate &&
+    dateKey <= event.endDate
+  );
+}
+
+function renderMonth(year, month, current){
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const el = document.createElement("section");
+  el.className = "month " + (current ? "current" : "future");
+
+  const title = document.createElement("h2");
+  title.className = "month-title";
+  title.textContent = `${monthNames[month].toUpperCase()} ${year}`;
+  el.appendChild(title);
+
+  const weekdays = document.createElement("div");
+  weekdays.className = "weekday-row";
+  ["SUN","MON","TUE","WED","THU","FRI","SAT"].forEach(d=>{
+    const x=document.createElement("div");
+    x.className="weekday";
+    x.textContent=d;
+    weekdays.appendChild(x);
+  });
+  el.appendChild(weekdays);
+
+  const grid=document.createElement("div");
+  grid.className="calendar-grid";
+
+  const first = new Date(year,month,1);
+  const daysInMonth = new Date(year,month+1,0).getDate();
+  const leading = first.getDay();
+  const totalCells = Math.ceil((leading + daysInMonth)/7)*7;
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  for(let i=0;i<totalCells;i++){
+    const dayNum=i-leading+1;
+    const cell=document.createElement("div");
+    cell.className="day";
+
+    if(dayNum<1 || dayNum>daysInMonth){
+      cell.classList.add("other-month");
+      grid.appendChild(cell);
+      continue;
+    }
+
+    const d=new Date(year,month,dayNum);
+    const dateKey=iso(d);
+
+    const num=document.createElement("div");
+    num.className="day-number";
+    num.textContent=dayNum;
+    cell.appendChild(num);
+
+    if(d.getTime()===today.getTime()){
+      cell.classList.add("today");
+      const label=document.createElement("div");
+      label.className="today-label";
+      label.textContent="Today";
+      cell.appendChild(label);
+    }
+
+    const dayEvents = events.filter(e => eventOccursOnDate(e, dateKey));
+    dayEvents.slice(0,3).forEach(e=>{
+      const item=document.createElement("div");
+      item.className=`event ${e.type}`;
+      
+const isRange =
+  e.startDate !== e.endDate;
+
+if (e.allDay || isRange) {
+  item.title = e.title;
+  item.textContent = e.title;
+} else {
+  item.title = `${e.time} — ${e.title}`;
+  item.innerHTML =
+    `<span class="time">${e.time}</span> ${e.title}`;
+}
+      cell.appendChild(item);
+    });
+    if(dayEvents.length>3){
+      const more=document.createElement("div");
+      more.className="more";
+      more.textContent=`+${dayEvents.length-3} more`;
+      cell.appendChild(more);
+    }
+    grid.appendChild(cell);
+  }
+  el.appendChild(grid);
+  return el;
+}
+
+function render(){
+  const now=new Date();
+  now.setHours(0,0,0,0);
+  const months=document.getElementById("months");
+  months.innerHTML="";
+
+  for(let offset=0;offset<3;offset++){
+    const d=new Date(now.getFullYear(),now.getMonth()+offset,1);
+    months.appendChild(renderMonth(d.getFullYear(),d.getMonth(),offset===0));
+  }
+
+  const monthNames=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  document.getElementById("todayDate").textContent =
+    `${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][now.getDay()]}, ${monthNames[now.getMonth()]} ${now.getDate()}`;
+
+  const todayKey=iso(now);
+  const todayEvents = events.filter(e => eventOccursOnDate(e, todayKey));
+  const todayBox=document.getElementById("todayEvents");
+  todayBox.innerHTML="";
+  if(todayEvents.length===0){
+    todayBox.innerHTML='<div class="today-event">No scheduled events.</div>';
+  } else {
+    todayEvents.forEach(e=>{
+      const x=document.createElement("div");
+      x.className="today-event";
+      if (e.allDay || e.startDate !== e.endDate) {
+  x.innerHTML = `<strong>All Day</strong> — ${e.title}`;
+} else {
+  x.innerHTML =
+    `<strong>${e.time}</strong> — ${e.title}`;
+}
+      todayBox.appendChild(x);
+    });
+  }
+
+  const upcoming=document.getElementById("upcoming");
+  upcoming.innerHTML="";
+  const maxDate = new Date(
+  now.getFullYear(),
+  now.getMonth() + 3,
+  0
+);
+
+const future = events.filter(e =>
+  new Date(e.startDate) <= maxDate &&
+  e.startDate > todayKey
+);
+}
+render();
+setInterval(render, 60000);
+</script>
+</body>
+</html>
