@@ -582,8 +582,18 @@ function render(){
   const upcoming = document.getElementById("upcoming");
 upcoming.innerHTML = "";
 
+const visibleUpcomingTypes = [
+  "crosspoint",
+  "special",
+    "brainstorm",
+    "leave"
+];
+
 const future = events
-  .filter(e => e.endDate >= todayKey)
+  .filter(e =>
+    e.endDate >= todayKey &&
+    visibleUpcomingTypes.includes(e.type)
+  )
   .sort((a, b) => a.startDate.localeCompare(b.startDate))
   .slice(0, 8);
 
@@ -591,8 +601,14 @@ future.forEach(e => {
   const item = document.createElement("div");
   item.className = "upcoming-item";
 
+  const displayDate = new Date(e.startDate)
+    .toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric"
+    });
+
   item.innerHTML = `
-    <span class="upcoming-date">${e.startDate}</span>
+    <span class="upcoming-date">${displayDate}</span>
     <span>${e.title}</span>
   `;
 
