@@ -769,7 +769,10 @@ future.forEach(e => {
 });
 }
 loadEvents();
-setInterval(render, 60000);
+
+setInterval(() => {
+  loadEvents();
+}, 60000);
 </script>
 </body>
 </html>
