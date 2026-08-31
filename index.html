@@ -187,6 +187,34 @@
   font-weight:700;
 }
 
+.leave-span{
+  z-index:5;
+  align-self:start;
+  margin-top:2.05em;
+  margin-left:4px;
+  margin-right:4px;
+
+  background:#edf9ef;
+  border-left:5px solid var(--green);
+
+  padding:.25vh .3vw;
+  font-size:clamp(.45rem,.78vw,.95rem);
+  line-height:1.1;
+  font-weight:700;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
+  pointer-events:none;
+}
+
+.month.future .leave-span{
+  padding:.12vh .2vw;
+  font-size:clamp(.35rem,.62vw,.72rem);
+  line-height:1;
+}
+    
   .event .time{font-weight:700}
   .event.meeting{border-color:var(--blue)}
   .event.brainstorm{border-color:var(--teal)}
@@ -535,7 +563,10 @@ function renderMonth(year, month, current){
       cell.appendChild(label);
     }
 
-    const dayEvents = events.filter(e => eventOccursOnDate(e, dateKey));
+    const dayEvents = events.filter(e =>
+  eventOccursOnDate(e, dateKey) &&
+  !(e.type === "leave" && e.startDate !== e.endDate)
+);
     dayEvents.slice(0,3).forEach(e=>{
       const item=document.createElement("div");
       item.className=`event ${e.type}`;
@@ -560,9 +591,72 @@ if (e.allDay || isRange) {
       cell.appendChild(more);
     }
     grid.appendChild(cell);
-  }
+    }
+
+  // Render multi-day leave as continuous weekly bars
+  const multiDayLeave = events.filter(e =>
+    e.type === "leave" &&
+    e.startDate !== e.endDate
+  );
+
+  const monthStart = new Date(year, month, 1);
+  const monthEnd = new Date(year, month + 1, 0);
+
+  multiDayLeave.forEach(e => {
+
+    const eventStart = new Date(e.startDate + "T00:00:00");
+    const eventEnd = new Date(e.endDate + "T00:00:00");
+
+    // Ignore leave that doesn't touch this month
+    if (eventEnd < monthStart || eventStart > monthEnd) return;
+
+    // Clip the leave range to the visible month
+    let segmentStart =
+      eventStart < monthStart ? new Date(monthStart) : new Date(eventStart);
+
+    const clippedEnd =
+      eventEnd > monthEnd ? new Date(monthEnd) : new Date(eventEnd);
+
+    while (segmentStart <= clippedEnd) {
+
+      // Finish this segment at Saturday or at the end of the leave
+      const daysUntilSaturday = 6 - segmentStart.getDay();
+
+      let segmentEnd = new Date(segmentStart);
+      segmentEnd.setDate(segmentEnd.getDate() + daysUntilSaturday);
+
+      if (segmentEnd > clippedEnd) {
+        segmentEnd = new Date(clippedEnd);
+      }
+
+      const startDay = segmentStart.getDate();
+      const endDay = segmentEnd.getDate();
+
+      const startIndex = leading + startDay - 1;
+      const endIndex = leading + endDay - 1;
+
+      const row = Math.floor(startIndex / 7) + 1;
+      const startColumn = (startIndex % 7) + 1;
+      const endColumn = (endIndex % 7) + 2;
+
+      const bar = document.createElement("div");
+      bar.className = "leave-span";
+      bar.textContent = e.title;
+      bar.title = e.title;
+
+      bar.style.gridRow = row;
+      bar.style.gridColumn = `${startColumn} / ${endColumn}`;
+
+      grid.appendChild(bar);
+
+      // Start another segment on Sunday if leave continues
+      segmentStart = new Date(segmentEnd);
+      segmentStart.setDate(segmentStart.getDate() + 1);
+    }
+  });
+
   el.appendChild(grid);
-  return el;
+    return el;
 }
 
 function render(){
