@@ -194,7 +194,7 @@
 .leave-span{
   z-index:5;
   align-self:start;
-  margin-top:2.45em;
+  margin-top:2.5em;
   margin-left:4px;
   margin-right:4px;
 
@@ -728,11 +728,36 @@ future.forEach(e => {
   const item = document.createElement("div");
   item.className = "upcoming-item";
 
-  const displayDate = new Date(e.startDate)
-    .toLocaleDateString("en-US", {
+  function localDate(dateString) {
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  const start = localDate(e.startDate);
+  const end = localDate(e.endDate);
+
+  let displayDate;
+
+  if (e.type === "leave" && e.startDate !== e.endDate) {
+    const startMonth = start.toLocaleDateString("en-US", {
+      month: "short"
+    });
+
+    const endMonth = end.toLocaleDateString("en-US", {
+      month: "short"
+    });
+
+    if (start.getMonth() === end.getMonth()) {
+      displayDate = `${startMonth} ${start.getDate()}–${end.getDate()}`;
+    } else {
+      displayDate = `${startMonth} ${start.getDate()}–${endMonth} ${end.getDate()}`;
+    }
+  } else {
+    displayDate = start.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric"
     });
+  }
 
   item.innerHTML = `
     <span class="upcoming-date">${displayDate}</span>
