@@ -151,8 +151,18 @@
     line-height:1;
     margin-bottom:.35vh;
   }
-.day.has-leave-span .event{
-  transform:translateY(1.2em);
+.day .event,
+.day .more{
+  transform:translateY(
+    calc(var(--leave-lanes, 0) * 1.35em)
+  );
+}
+
+.month.future .day .event,
+.month.future .day .more{
+  transform:translateY(
+    calc(var(--leave-lanes, 0) * 1.15em)
+  );
 }
     .today-label{
     color:var(--blue);
