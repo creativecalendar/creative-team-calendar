@@ -124,6 +124,7 @@
     border-left:1px solid var(--grid);
     border-top:1px solid var(--grid);
       grid-auto-rows:minmax(0,1fr);
+      position:relative;
   }
   .day{
     min-width:0;
@@ -540,6 +541,8 @@ function renderMonth(year, month, current){
     const dayNum=i-leading+1;
     const cell=document.createElement("div");
     cell.className="day";
+      cell.style.gridColumn = (i % 7) + 1;
+cell.style.gridRow = Math.floor(i / 7) + 1;
 
     if(dayNum<1 || dayNum>daysInMonth){
       cell.classList.add("other-month");
