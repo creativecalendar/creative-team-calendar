@@ -460,9 +460,14 @@ let events = [];
 
 async function loadEvents() {
   try {
-    const response = await fetch("events.json");
+    const response = await fetch(
+      `events.json?ts=${Date.now()}`,
+      { cache: "no-store" }
+    );
+
     events = await response.json();
     render();
+
   } catch (error) {
     console.error("Error loading events:", error);
   }
