@@ -611,72 +611,120 @@ if (e.allDay || isRange) {
     }
 
   // Render multi-day leave as continuous weekly bars
-  const multiDayLeave = events.filter(e =>
+const multiDayLeave = events
+  .filter(e =>
     e.type === "leave" &&
     e.startDate !== e.endDate
+  )
+  .sort((a, b) =>
+    a.startDate.localeCompare(b.startDate) ||
+    a.endDate.localeCompare(b.endDate)
   );
 
-  const monthStart = new Date(year, month, 1);
-  const monthEnd = new Date(year, month + 1, 0);
+const monthStart = new Date(year, month, 1);
+const monthEnd = new Date(year, month + 1, 0);
 
-  multiDayLeave.forEach(e => {
+// Tracks occupied leave lanes separately for each calendar week
+const leaveLanesByRow = new Map();
 
-    const eventStart = new Date(e.startDate + "T00:00:00");
-    const eventEnd = new Date(e.endDate + "T00:00:00");
+multiDayLeave.forEach(e => {
 
-    // Ignore leave that doesn't touch this month
-    if (eventEnd < monthStart || eventStart > monthEnd) return;
+  const eventStart = new Date(e.startDate + "T00:00:00");
+  const eventEnd = new Date(e.endDate + "T00:00:00");
 
-    // Clip the leave range to the visible month
-    let segmentStart =
-      eventStart < monthStart ? new Date(monthStart) : new Date(eventStart);
+  // Ignore leave that doesn't touch this month
+  if (eventEnd < monthStart || eventStart > monthEnd) return;
 
-    const clippedEnd =
-      eventEnd > monthEnd ? new Date(monthEnd) : new Date(eventEnd);
+  // Clip leave range to this visible month
+  let segmentStart =
+    eventStart < monthStart
+      ? new Date(monthStart)
+      : new Date(eventStart);
 
-    while (segmentStart <= clippedEnd) {
+  const clippedEnd =
+    eventEnd > monthEnd
+      ? new Date(monthEnd)
+      : new Date(eventEnd);
 
-      // Finish this segment at Saturday or at the end of the leave
-      const daysUntilSaturday = 6 - segmentStart.getDay();
+  while (segmentStart <= clippedEnd) {
 
-      let segmentEnd = new Date(segmentStart);
-      segmentEnd.setDate(segmentEnd.getDate() + daysUntilSaturday);
+    // Finish this segment at Saturday or at the end of the leave
+    const daysUntilSaturday = 6 - segmentStart.getDay();
 
-      if (segmentEnd > clippedEnd) {
-        segmentEnd = new Date(clippedEnd);
-      }
+    let segmentEnd = new Date(segmentStart);
+    segmentEnd.setDate(
+      segmentEnd.getDate() + daysUntilSaturday
+    );
 
-      const startDay = segmentStart.getDate();
-      const endDay = segmentEnd.getDate();
-
-      const startIndex = leading + startDay - 1;
-      const endIndex = leading + endDay - 1;
-        for (let idx = startIndex; idx <= endIndex; idx++) {
-  const cell = grid.children[idx];
-  if (cell) {
-    cell.classList.add("has-leave-span");
-  }
-}
-
-      const row = Math.floor(startIndex / 7) + 1;
-      const startColumn = (startIndex % 7) + 1;
-      const endColumn = (endIndex % 7) + 2;
-
-      const bar = document.createElement("div");
-      bar.className = "leave-span";
-      bar.textContent = e.title;
-      bar.title = e.title;
-
-      bar.style.gridRow = row;
-      bar.style.gridColumn = `${startColumn} / ${endColumn}`;
-
-      grid.appendChild(bar);
-
-      // Start another segment on Sunday if leave continues
-      segmentStart = new Date(segmentEnd);
-      segmentStart.setDate(segmentStart.getDate() + 1);
+    if (segmentEnd > clippedEnd) {
+      segmentEnd = new Date(clippedEnd);
     }
-  });
+
+    const startDay = segmentStart.getDate();
+    const endDay = segmentEnd.getDate();
+
+    const startIndex = leading + startDay - 1;
+    const endIndex = leading + endDay - 1;
+
+    const row = Math.floor(startIndex / 7) + 1;
+    const startColumn = (startIndex % 7) + 1;
+    const endColumn = (endIndex % 7) + 2;
+
+    // Find the first available lane in this calendar week
+    let rowLanes = leaveLanesByRow.get(row) || [];
+
+    let lane = rowLanes.findIndex(
+      occupiedThrough => startIndex > occupiedThrough
+    );
+
+    if (lane === -1) {
+      lane = rowLanes.length;
+    }
+
+    rowLanes[lane] = endIndex;
+    leaveLanesByRow.set(row, rowLanes);
+
+    // Tell each affected day how many leave lanes it needs
+    for (let idx = startIndex; idx <= endIndex; idx++) {
+      const cell = grid.children[idx];
+
+      if (cell) {
+        const lanesNeeded = lane + 1;
+        const currentLanes =
+          Number(cell.dataset.leaveLanes || 0);
+
+        if (lanesNeeded > currentLanes) {
+          cell.dataset.leaveLanes = lanesNeeded;
+          cell.style.setProperty(
+            "--leave-lanes",
+            lanesNeeded
+          );
+        }
+      }
+    }
+
+    // Create the leave bar
+    const bar = document.createElement("div");
+    bar.className = "leave-span";
+    bar.textContent = e.title;
+    bar.title = e.title;
+
+    bar.style.gridRow = row;
+    bar.style.gridColumn =
+      `${startColumn} / ${endColumn}`;
+
+    // Lane 0 = first row, lane 1 = second row, etc.
+    bar.style.setProperty("--leave-lane", lane);
+
+    grid.appendChild(bar);
+
+    // Continue on Sunday if the leave crosses into another week
+    segmentStart = new Date(segmentEnd);
+    segmentStart.setDate(
+      segmentStart.getDate() + 1
+    );
+  }
+});
 
   el.appendChild(grid);
     return el;
