@@ -723,7 +723,7 @@ const future = events
     visibleUpcomingTypes.includes(e.type)
   )
   .sort((a, b) => a.startDate.localeCompare(b.startDate))
-  .slice(0, 8);
+  .slice(0, 5);
 
 future.forEach(e => {
   const item = document.createElement("div");
