@@ -150,7 +150,10 @@
     line-height:1;
     margin-bottom:.35vh;
   }
-  .today-label{
+.day.has-leave-span .event{
+  transform:translateY(1.55em);
+}
+    .today-label{
     color:var(--blue);
     font-size:clamp(.42rem,.65vw,.8rem);
     font-weight:800;
@@ -637,6 +640,12 @@ if (e.allDay || isRange) {
 
       const startIndex = leading + startDay - 1;
       const endIndex = leading + endDay - 1;
+        for (let idx = startIndex; idx <= endIndex; idx++) {
+  const cell = grid.children[idx];
+  if (cell) {
+    cell.classList.add("has-leave-span");
+  }
+}
 
       const row = Math.floor(startIndex / 7) + 1;
       const startColumn = (startIndex % 7) + 1;
