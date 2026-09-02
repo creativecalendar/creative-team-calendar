@@ -550,7 +550,12 @@ function renderMonth(year, month, current){
   const daysInMonth = new Date(year,month+1,0).getDate();
   const leading = first.getDay();
   const totalCells = Math.ceil((leading + daysInMonth)/7)*7;
+const weekCount = totalCells / 7;
 
+grid.style.gridTemplateRows = Array.from(
+  { length: weekCount },
+  () => "1.5fr repeat(5, 1fr)"
+).join(" ");
   const today = new Date();
   today.setHours(0,0,0,0);
 
