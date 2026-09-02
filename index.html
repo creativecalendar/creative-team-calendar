@@ -546,7 +546,7 @@ cell.style.gridRow = Math.floor(i / 7) + 1;
 const dayEvents = events
   .filter(e =>
     eventOccursOnDate(e, dateKey) &&
-    !(e.type === "leave" && e.startDate !== e.endDate)
+    e.startDate === e.endDate
   )
   .sort((a, b) => {
     if (!a.time) return -1;
