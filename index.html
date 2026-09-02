@@ -473,40 +473,6 @@ async function loadEvents() {
   }
 }
 
-const typeNames = {
-  meeting:"Meeting",
-  brainstorm:"Brainstorm",
-  special:"Special Event",
-  crosspoint:"Crosspoint Event",
-  deadline:"Deadline",
-  leave:"Leave"
-};
-
-function mapCategory(category) {
-  switch(category) {
-    case "Meeting":
-      return "meeting";
-
-    case "Brainstorm":
-      return "brainstorm";
-
-    case "Special Event":
-      return "special";
-
-    case "Crosspoint Event":
-      return "crosspoint";
-
-    case "Deadline":
-      return "deadline";
-
-    case "Leave":
-      return "leave";
-
-    default:
-      return "meeting";
-  }
-}
-
 function pad(n){return String(n).padStart(2,"0")}
 function iso(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
 
