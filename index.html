@@ -582,10 +582,9 @@ if (e.allDay || isRange) {
     grid.appendChild(cell);
     }
 
-  // Render multi-day leave as continuous weekly bars
-const multiDayLeave = events
+  // Render multi-day event as continuous weekly bars
+const multiDayEvents = events
   .filter(e =>
-    e.type === "leave" &&
     e.startDate !== e.endDate
   )
   .sort((a, b) =>
@@ -599,7 +598,7 @@ const monthEnd = new Date(year, month + 1, 0);
 // Tracks occupied leave lanes separately for each calendar week
 const leaveLanesByRow = new Map();
 
-multiDayLeave.forEach(e => {
+multiDayEvents.forEach(e => {
 
   const eventStart = new Date(e.startDate + "T00:00:00");
   const eventEnd = new Date(e.endDate + "T00:00:00");
