@@ -592,6 +592,194 @@ cell.style.gridRow = `${(week * 6) + 1} / span 6`;
     grid.appendChild(cell);
     }
 
+// ==========================================
+// SHARED EVENT TRACKS
+// Single-day and multi-day events use
+// the same 4 lanes within each calendar week.
+// ==========================================
+
+const MAX_LANES = 4;
+const weekLanes = Array.from(
+  { length: weekCount },
+  () => Array.from({ length: MAX_LANES }, () => [])
+);
+
+// Build event segments for this visible month.
+const eventSegments = [];
+
+events.forEach(e => {
+  const eventStart = new Date(e.startDate + "T00:00:00");
+  const eventEnd = new Date(e.endDate + "T00:00:00");
+
+  const monthStart = new Date(year, month, 1);
+  const monthEnd = new Date(year, month + 1, 0);
+
+  // Event doesn't touch this month.
+  if (eventEnd < monthStart || eventStart > monthEnd) return;
+
+  const clippedStart =
+    eventStart < monthStart ? new Date(monthStart) : new Date(eventStart);
+
+  const clippedEnd =
+    eventEnd > monthEnd ? new Date(monthEnd) : new Date(eventEnd);
+
+  let segmentStart = new Date(clippedStart);
+
+  while (segmentStart <= clippedEnd) {
+    const daysUntilSaturday = 6 - segmentStart.getDay();
+
+    let segmentEnd = new Date(segmentStart);
+    segmentEnd.setDate(segmentEnd.getDate() + daysUntilSaturday);
+
+    if (segmentEnd > clippedEnd) {
+      segmentEnd = new Date(clippedEnd);
+    }
+
+    const startIndex =
+      leading + segmentStart.getDate() - 1;
+
+    const endIndex =
+      leading + segmentEnd.getDate() - 1;
+
+    const week = Math.floor(startIndex / 7);
+
+    eventSegments.push({
+      event: e,
+      week,
+      startIndex,
+      endIndex,
+      startColumn: (startIndex % 7) + 1,
+      endColumn: (endIndex % 7) + 2,
+      isMultiDay: e.startDate !== e.endDate
+    });
+
+    segmentStart = new Date(segmentEnd);
+    segmentStart.setDate(segmentStart.getDate() + 1);
+  }
+});
+
+// Multi-day events get first choice of lanes.
+// Then all-day single events.
+// Then timed events chronologically.
+eventSegments.sort((a, b) => {
+  if (a.week !== b.week) {
+    return a.week - b.week;
+  }
+
+  if (a.isMultiDay !== b.isMultiDay) {
+    return a.isMultiDay ? -1 : 1;
+  }
+
+  const aHasTime = !!a.event.time;
+  const bHasTime = !!b.event.time;
+
+  if (aHasTime !== bHasTime) {
+    return aHasTime ? 1 : -1;
+  }
+
+  if (a.event.time && b.event.time) {
+    const timeCompare =
+      new Date(`1970-01-01 ${a.event.time}`) -
+      new Date(`1970-01-01 ${b.event.time}`);
+
+    if (timeCompare !== 0) return timeCompare;
+  }
+
+  return a.startIndex - b.startIndex;
+});
+
+// Keep track of events that couldn't fit.
+const hiddenByDay = new Map();
+
+eventSegments.forEach(segment => {
+  const {
+    event: e,
+    week,
+    startIndex,
+    endIndex,
+    startColumn,
+    endColumn,
+    isMultiDay
+  } = segment;
+
+  let chosenLane = -1;
+
+  // Find the first lane that is free across
+  // every day this event occupies.
+  for (let lane = 0; lane < MAX_LANES; lane++) {
+    const conflicts = weekLanes[week][lane].some(existing =>
+      !(
+        endIndex < existing.startIndex ||
+        startIndex > existing.endIndex
+      )
+    );
+
+    if (!conflicts) {
+      chosenLane = lane;
+      break;
+    }
+  }
+
+  // No room in our four visible lanes.
+  if (chosenLane === -1) {
+    for (let idx = startIndex; idx <= endIndex; idx++) {
+      hiddenByDay.set(
+        idx,
+        (hiddenByDay.get(idx) || 0) + 1
+      );
+    }
+    return;
+  }
+
+  weekLanes[week][chosenLane].push({
+    startIndex,
+    endIndex
+  });
+
+  const item = document.createElement("div");
+
+  item.className =
+    `${isMultiDay ? "multi-span" : "event"} ${e.type}`;
+
+  item.style.gridColumn =
+    `${startColumn} / ${endColumn}`;
+
+  // Each calendar week has:
+  // row 1 = date/header
+  // rows 2–5 = our four event lanes
+  // row 6 = +more
+  item.style.gridRow =
+    (week * 6) + 2 + chosenLane;
+
+  item.title = e.time
+    ? `${e.time} — ${e.title}`
+    : e.title;
+
+  if (!isMultiDay && e.time) {
+    item.innerHTML =
+      `<span class="time">${e.time}</span> ${e.title}`;
+  } else {
+    item.textContent = e.title;
+  }
+
+  grid.appendChild(item);
+});
+
+// Add "+ more" to days with hidden events.
+hiddenByDay.forEach((count, index) => {
+  const more = document.createElement("div");
+  more.className = "more";
+  more.textContent = `+${count} more`;
+
+  const week = Math.floor(index / 7);
+  const column = (index % 7) + 1;
+
+  more.style.gridColumn = column;
+  more.style.gridRow = (week * 6) + 6;
+
+  grid.appendChild(more);
+});
+    
 el.appendChild(grid);
     return el;
 }
