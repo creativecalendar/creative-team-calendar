@@ -483,12 +483,6 @@ function eventOccursOnDate(event, dateKey) {
   );
 }
 
-  return (
-    dateKey >= event.startDate &&
-    dateKey <= endDate
-  );
-}
-
 function renderMonth(year, month, current){
   const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const el = document.createElement("section");
