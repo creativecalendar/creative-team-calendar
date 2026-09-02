@@ -785,7 +785,7 @@ future.forEach(e => {
 
   let displayDate;
 
-  if (e.type === "leave" && e.startDate !== e.endDate) {
+  if (e.startDate !== e.endDate) {
     const startMonth = start.toLocaleDateString("en-US", {
       month: "short"
     });
