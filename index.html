@@ -589,42 +589,6 @@ cell.style.gridRow = `${(week * 6) + 1} / span 6`;
       cell.appendChild(label);
     }
 
-const dayEvents = events
-  .filter(e =>
-    eventOccursOnDate(e, dateKey) &&
-    e.startDate === e.endDate
-  )
-  .sort((a, b) => {
-    if (!a.time) return -1;
-    if (!b.time) return 1;
-
-    return new Date(`1970-01-01 ${a.time}`) -
-           new Date(`1970-01-01 ${b.time}`);
-  });
-      
-    dayEvents.slice(0,4).forEach(e=>{
-      const item=document.createElement("div");
-      item.className=`event ${e.type}`;
-      
-const isRange =
-  e.startDate !== e.endDate;
-
-if (e.allDay || isRange) {
-  item.title = e.title;
-  item.textContent = e.title;
-} else {
-  item.title = `${e.time} — ${e.title}`;
-  item.innerHTML =
-    `<span class="time">${e.time}</span> ${e.title}`;
-}
-      cell.appendChild(item);
-    });
-    if(dayEvents.length>4){
-      const more=document.createElement("div");
-      more.className="more";
-      more.textContent=`+${dayEvents.length-3} more`;
-      cell.appendChild(more);
-    }
     grid.appendChild(cell);
     }
 
