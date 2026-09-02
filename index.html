@@ -676,7 +676,7 @@ multiDayEvents.forEach(e => {
 
     // Create the leave bar
     const bar = document.createElement("div");
-    bar.className = "leave-span";
+    bar.className = `leave-span ${e.type}`;
     bar.textContent = e.title;
     bar.title = e.title;
 
