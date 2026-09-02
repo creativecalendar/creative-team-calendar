@@ -564,7 +564,8 @@ grid.style.gridTemplateRows = Array.from(
     const cell=document.createElement("div");
     cell.className="day";
       cell.style.gridColumn = (i % 7) + 1;
-cell.style.gridRow = Math.floor(i / 7) + 1;
+const week = Math.floor(i / 7);
+cell.style.gridRow = `${(week * 6) + 1} / span 6`;
 
     if(dayNum<1 || dayNum>daysInMonth){
       cell.classList.add("other-month");
