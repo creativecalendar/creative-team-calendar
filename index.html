@@ -202,7 +202,7 @@
   font-weight:700;
 }
 
-.leave-span{
+.multi-span{
   z-index:5;
   align-self:start;
   margin-top:calc(
@@ -226,7 +226,7 @@ background:#F5F7F8;
   pointer-events:none;
 }
 
-.month.future .leave-span{
+.month.future .multi-span{
   padding:.12vh .2vw;
   font-size:clamp(.35rem,.62vw,.72rem);
   line-height:1;
@@ -239,13 +239,13 @@ background:#F5F7F8;
   .event.crosspoint{border-color:var(--gold)}
   .event.deadline{border-color:var(--coral)}
   .event.leave{border-color:var(--green)}
-    .leave-span.meeting{border-color:var(--blue)}
-.leave-span.brainstorm{border-color:var(--teal)}
-.leave-span.special{border-color:var(--light-teal)}
-.leave-span.crosspoint{border-color:var(--gold)}
-.leave-span.deadline{border-color:var(--coral)}
-.leave-span.leave{border-color:var(--green)}
-    .leave-span.leave{
+    .multi-span.meeting{border-color:var(--blue)}
+.multi-span.brainstorm{border-color:var(--teal)}
+.multi-span.special{border-color:var(--light-teal)}
+.multi-span.crosspoint{border-color:var(--gold)}
+.multi-span.deadline{border-color:var(--coral)}
+.multi-span.leave{border-color:var(--green)}
+    .multi-span.leave{
   background:#edf9ef;
 }
   .more{
@@ -685,7 +685,7 @@ multiDayEvents.forEach(e => {
 
     // Create the leave bar
     const bar = document.createElement("div");
-    bar.className = `leave-span ${e.type}`;
+    bar.className = `multi-span ${e.type}`;
     bar.textContent = e.title;
     bar.title = e.title;
 
