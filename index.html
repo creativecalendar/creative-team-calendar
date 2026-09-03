@@ -758,12 +758,17 @@ eventSegments.forEach(segment => {
     ? `${e.time} — ${e.title}`
     : e.title;
 
-  if (!isMultiDay && e.time) {
-    item.innerHTML =
-      `<span class="time">${e.time}</span> ${e.title}`;
-  } else {
-    item.textContent = e.title;
-  }
+ const content = document.createElement("span");
+content.className = "event-content";
+
+if (!isMultiDay && e.time) {
+  content.innerHTML =
+    `<span class="time">${e.time}</span> ${e.title}`;
+} else {
+  content.textContent = e.title;
+}
+
+item.appendChild(content);
 
   grid.appendChild(item);
 });
