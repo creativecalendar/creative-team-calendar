@@ -564,8 +564,8 @@ function renderMonth(year, month, current){
 const weekCount = totalCells / 7;
 
 const rowTemplate = current
-  ? "1fr repeat(5, .72fr)"
-  : "1.25fr repeat(5, .72fr)";
+  ? ".9fr repeat(5, .72fr)"
+  : "1.4fr repeat(5, .72fr)";
 
 grid.style.gridTemplateRows = Array.from(
   { length: weekCount },
