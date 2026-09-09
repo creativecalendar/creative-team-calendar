@@ -610,10 +610,10 @@ cell.style.gridRow = `${(week * 6) + 1} / span 6`;
 // ==========================================
 // SHARED EVENT TRACKS
 // Single-day and multi-day events use
-// the same 4 lanes within each calendar week.
+// the same 5 lanes within each calendar week.
 // ==========================================
 
-const MAX_LANES = 4;
+const MAX_LANES = 5;
 const weekLanes = Array.from(
   { length: weekCount },
   () => Array.from({ length: MAX_LANES }, () => [])
@@ -735,7 +735,7 @@ eventSegments.forEach(segment => {
     }
   }
 
-  // No room in our four visible lanes.
+  // No room in our five visible lanes.
   if (chosenLane === -1) {
     for (let idx = startIndex; idx <= endIndex; idx++) {
       hiddenByDay.set(
@@ -785,20 +785,7 @@ item.appendChild(content);
   grid.appendChild(item);
 });
 
-// Add "+ more" to days with hidden events.
-hiddenByDay.forEach((count, index) => {
-  const more = document.createElement("div");
-  more.className = "more";
-  more.textContent = `+${count} more`;
-
-  const week = Math.floor(index / 7);
-  const column = (index % 7) + 1;
-
-  more.style.gridColumn = column;
-  more.style.gridRow = (week * 6) + 6;
-
-  grid.appendChild(more);
-});
+// Hidden events beyond the five visible lanes are not displayed.
     
 el.appendChild(grid);
     return el;
